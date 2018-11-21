@@ -119,7 +119,48 @@ $caps = [
 $caps->setCapability(ChromeOptions::CAPABILITY, $options);
 $driver = RemoteWebDriver::create('http://127.0.0.1:4444/wd/hub', $caps, 5000);
 
+//获得当前url
+$driver->getCurrentURL();
+
+
+//超时处理
+$driver->manage()->timeouts()->pageLoadTimeout(1);
+try {
+$driver->get('slow_loading.html');
+} catch (TimeOutException $e) {
+//something
+}
+
+
+
+
+//命令参数
+$driver->getCommandExecutor()
+
+//前进与后退
+$linkElement = $this->driver->findElement(WebDriverBy::id('a-form'));
+$linkElement->click();
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('form.html'));
+$driver->navigate()->back();
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('index.html'));
+$driver->navigate()->forward();
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('form.html'));
+
+//刷新
+$driver->navigate()->refresh();
+
+
+//获得会话ID
+$driver->getSessionID();
+
+//所有的会话
+$driver->getAllSessions();
+
+//获得源码
+$driver->getPageSource();
+
 //退出驱动
+$driver->close();
 $driver->quit();
 
 //各种类型的筛选元素
@@ -141,14 +182,33 @@ WebDriverBy::name('email');
 //按tagName比如h1,div,span
 WebDriverBy::tagName('h1');
 
-//按链接文本
+//按链接所在文本
 WebDriverBy::linkText('Sign in here');
 
-//按部分的链接文本
+//按部分匹配链接所在文本
 WebDriverBy::partialLinkText('Sign in');
 
 //获取指定元素文本
 $result = $driver->findElement(WebDriverBy::id('signin'))->getText();
+
+//获取css的值
+$elementWithBorder =$this->driver->findElement(WebDriverBy::id('text-simple')->getCSSValue('display')
+
+//获得尺寸
+$elementSize = $element->getSize();
+
+//清空
+$input->clear();
+$textarea->clear();
+
+//是否可输入
+$input->isEnabled();
+
+
+//获得坐标
+$element->getLocation();
+$elementLocation->getX();
+$elementLocation->getY();
 
 //获得元素数组
 $elements = $driver->findElements(WebDriverBy::cssSelector('ul.foo > li'));
@@ -259,6 +319,10 @@ $driver->manage()->window()->maximize();
 
 //执行js,全局加上window.
 $sScriptResult = $driver->executeScript('return window.document.location.hostname',array());
+
+//执行异步js
+$driver->executeAsyncScript('return window.document.location.hostname',array());
+
 
 //异步,5秒后无结果则取消,全局加上window.
 $driver->timeouts()->async_script(array('ms'=>5000));
@@ -404,6 +468,9 @@ $selectElement = $driver->findElement(WebDriverBy::name('language'));
 //构造select
 $select = new WebDriverSelect($selectElement);
 
+//是否被选中
+$select->isSelected();
+
 //获得select的value
 echo $select->getFirstSelectedOption()->getAttribute('value'); //"en_GB"
 echo $select->getFirstSelectedOption()->getText(); //"English（UK）"
@@ -426,6 +493,15 @@ $select->deselectByValue('...');
 $select->deselectByIndex(0);
 $select->deselectByVisibleText('...');
 $select->deselectByVisiblePartialText('...');
+
+//表单的提交
+$formElement = $driver->findElement(WebDriverBy::cssSelector('form'));
+$formElement->submit();
+
+
+
+
+
 
 
 //示例:

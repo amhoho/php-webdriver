@@ -393,7 +393,8 @@ $findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
 $screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
 
 //日志
-$driver->manage()->getLog('client');//client,driver,browser,server
+$caps->setCapability( 'loggingPrefs', ['browser' => 'ALL']);
+$driver->manage()->getLog('driver');//driver,browser,server
 
 //Cookie操作
 //获取

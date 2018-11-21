@@ -14,8 +14,8 @@ yum install php-dom
 service httpd restart
 //安装驱动:
 yum install java-1.8.0-openjdk(版本可通过yum search java | grep -i --color JDK查询)
-前往页面http://selenium-release.storage.googleapis.com/index.html下载standalone selenium:并上传至/www/collector/collector.jar
-前往页面https://sites.google.com/a/chromium.org/chromedriver/downloads下载并上传/usr/bin/chromedriver
+前往http://selenium-release.storage.googleapis.com/index.html下载standalone selenium:并上传为/www/collector/collector.jar
+前往https://sites.google.com/a/chromium.org/chromedriver/downloads并上传为/usr/bin/chromedriver
 yum install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 chmod -R 777 /usr/bin/chromedriver
 chmod -R 777 /usr/bin/chrome

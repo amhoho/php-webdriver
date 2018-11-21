@@ -350,7 +350,25 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
 
         return $screenshot;
     }
-
+public function TakeScreenshotByElement($element=null,$save_as = null) {
+$screenshot = $save_as.'_temp_'.rand(0,999999).time() . ".png";
+self::takeScreenshot($screenshot);
+if(!file_exists($screenshot)) {throw new Exception('Could not save screenshot');}
+if( ! (bool) $element) {return $screenshot;}
+$element_width = $element->getSize()->getWidth();
+$element_height = $element->getSize()->getHeight();
+$element_src_x = $element->getLocationOnScreenOnceScrolledIntoView()->getX();
+$element_src_y = $element->getLocationOnScreenOnceScrolledIntoView()->getY();
+$src = imagecreatefrompng($screenshot);
+$dest = imagecreatetruecolor($element_width, $element_height);
+imagecopy($dest, $src, 0, 0, (int) ceil($element_src_x), (int) ceil($element_src_y), (int) ceil($element_width), (int) ceil($element_height));
+imagepng($dest, $save_as);
+unlink($screenshot);
+if( ! file_exists($save_as)) {
+throw new Exception('Could not save element screenshot');
+}
+return $save_as;
+}
     /**
      * Construct a new WebDriverWait by the current WebDriver instance.
      * Sample usage:

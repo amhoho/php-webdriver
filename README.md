@@ -14,7 +14,8 @@ yum install php-dom
 service httpd restart
 //安装驱动:
 yum install java-1.8.0-openjdk(版本可通过yum search java | grep -i --color JDK查询)
-前往http://selenium-release.storage.googleapis.com/index.html下载standalone selenium:并上传为/www/collector/collector.jar
+前往http://selenium-release.storage.googleapis.com/index.html下载standalone selenium
+并上传为/www/collector/collector.jar
 前往https://sites.google.com/a/chromium.org/chromedriver/downloads并上传为/usr/bin/chromedriver
 yum install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 chmod -R 777 /usr/bin/chromedriver
@@ -324,7 +325,7 @@ $value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value
 $driver->takeScreenshot('./00001.jpg');
 
 //局部截图
-$screenshot_of_element = $driver->TakeScreenshotByElement($this->driver->findElement(WebDriverBy::xpath("//img[@class='test']"),'./00001.jpg');
+$screenshot_of_element = $driver->TakeScreenshotByElement($driver->findElement(WebDriverBy::xpath("//img[@class='test']"),'./1.jpg');
 
 
 //等待ajax提交后的回调并筛选元素

@@ -328,6 +328,20 @@ $driver->takeScreenshot('./00001.jpg');
 $findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
 $screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
 
+//日志
+$driver->manage()->getLog('client');//client,driver,browser,server
+
+//Cookie操作
+//获取
+$driver->manage()->getCookieNamed('CookieName');
+$driver->manage()->getCookies();
+//设置
+$driver->manage()->addCookie(['CookieName'=>'CookieValue']);
+//删除或清空
+$driver->manage()->deleteCookieNamed('CookieName');
+$driver->manage()->deleteAllCookies();
+
+
 
 //等待ajax提交后的回调并筛选元素
 $submitButton = $driver->findElement(WebDriverBy::id('Submit'));

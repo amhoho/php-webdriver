@@ -325,7 +325,8 @@ $value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value
 $driver->takeScreenshot('./00001.jpg');
 
 //局部截图
-$screenshot_of_element = $driver->TakeScreenshotByElement($driver->findElement(WebDriverBy::xpath("//img[@class='test']"),'./1.jpg');
+$findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
+$screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
 
 
 //等待ajax提交后的回调并筛选元素

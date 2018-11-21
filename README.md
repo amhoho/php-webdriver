@@ -1,122 +1,434 @@
-# php-webdriver – Selenium WebDriver bindings for PHP
+### 环境安装
+```
+curl -sS https://getcomposer.org/installer | php
+composer config -g repo.packagist composer https://packagist.phpcomposer.com
+sudo mv composer.phar /usr/local/bin/composer
+yum remove zip 
+yum remove unzip 
+yum install zip unzip php7.2-zip //7.2为对应版本
+composer require ext-simplexml
+php函数取消禁用
+composer require facebook/webdriver
+yum install php-xml 
+yum install php-dom
+service httpd restart
+//安装驱动:
+yum install java-1.8.0-openjdk(版本可通过yum search java | grep -i --color JDK查询)
+前往页面http://selenium-release.storage.googleapis.com/index.html下载standalone selenium:并上传至/www/collector/collector.jar
+前往页面https://sites.google.com/a/chromium.org/chromedriver/downloads下载并上传/usr/bin/chromedriver
+yum install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+chmod -R 777 /usr/bin/chromedriver
+chmod -R 777 /usr/bin/chrome
+chmod -R 777 /usr/bin/xvfb-firefox
+export PATH="$PATH:/usr/local/chromedriver"
+export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk
+export PATH=$JAVA_HOME/bin:$PATH:/www/server/mysql/bin:/www/server/apache/bin
+source /etc/profile
+yum install bitmap-fonts bitmap-fonts-cjk
+yum provides */libgconf-2.so.4
+yum install GConf2
+yum install Xvfb -y
+yum install xorg-x11-fonts* -y
+yum -y install http://linuxdownload.adobe.com/linux/x86_64/adobe-release-x86_64-1.0-1.noarch.rpm
+yum install flash-plugin
+yum -y install *-fonts-*
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/facebook/webdriver.svg?style=flat-square)](https://packagist.org/packages/facebook/webdriver)
-[![Travis Build](https://img.shields.io/travis/facebook/php-webdriver/community.svg?style=flat-square)](https://travis-ci.org/facebook/php-webdriver)
-[![Sauce Test Status](https://saucelabs.com/buildstatus/php-webdriver)](https://saucelabs.com/u/php-webdriver)
-[![Total Downloads](https://img.shields.io/packagist/dt/facebook/webdriver.svg?style=flat-square)](https://packagist.org/packages/facebook/webdriver)
-[![License](https://img.shields.io/packagist/l/facebook/webdriver.svg?style=flat-square)](https://packagist.org/packages/facebook/webdriver)
-
-## Description
-Php-webdriver library is PHP language binding for Selenium WebDriver, which allows you to control web browsers from PHP.
-
-This library is compatible with Selenium server version 2.x and 3.x.
-It implements the [JsonWireProtocol](https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol), which is currently supported
-by the Selenium server and will also implement the [W3C WebDriver](https://w3c.github.io/webdriver/webdriver-spec.html) specification in the future.
-
-The concepts of this library are very similar to the "official" Java, .NET, Python and Ruby bindings from the
-[Selenium project](https://github.com/SeleniumHQ/selenium/).
-
-**As of 2013, this PHP client has been rewritten from scratch.**
-Using the old version? Check out [Adam Goucher's fork](https://github.com/Element-34/php-webdriver) of it.
-
-Looking for API documentation of php-webdriver? See [https://facebook.github.io/php-webdriver/](https://facebook.github.io/php-webdriver/latest/)
-
-Any complaints, questions, or ideas? Post them in the user group https://www.facebook.com/groups/phpwebdriver/.
-
-## Installation
-
-Installation is possible using [Composer](https://getcomposer.org/).
-
-If you don't already use Composer, you can download the `composer.phar` binary:
-
-    curl -sS https://getcomposer.org/installer | php
-
-Then install the library:
-
-    php composer.phar require facebook/webdriver
-
-## Getting started
-
-### Start Server
-
-The required server is the `selenium-server-standalone-#.jar` file provided here: http://selenium-release.storage.googleapis.com/index.html
-
-Download and run the server by replacing # with the current server version. Keep in mind **you must have Java 8+ installed to run this command**.
-
-    java -jar selenium-server-standalone-#.jar
-
-**NOTE:** If using Firefox, see alternate command below.
-
-### Create a Browser Session
-
-When creating a browser session, be sure to pass the url of your running server.
-
-```php
-// This would be the url of the host running the server-standalone.jar
-$host = 'http://localhost:4444/wd/hub'; // this is the default
+//环境完成
+/etc/rc.d/rc.local文件加入:
+nohup /usr/lib/jvm/jre-1.8.0-openjdk/bin/java -jar /www/collector/collector.jar
+ln -s /etc/alternatives/google-chrome /usr/bin/chrome
 ```
 
-##### Launch Chrome
+### 改动说明:
 
-Make sure to have latest Chrome and [Chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) versions installed.
-
-```php
-$driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+```
+修改了/www/wwwroot/39kefu.com/vendor/facebook/webdriver/lib/Chrome/ChromeOptions.php修改addArguments
+修改了//www/wwwroot/39kefu.com/vendor/facebook/webdriver/lib/Remote/RemoteWebDriver.php新增TakeScreenshotByElement
 ```
 
-##### Launch Firefox
-
-Make sure to have latest Firefox and [Geckodriver](https://github.com/mozilla/geckodriver/releases) installed.
-
-Because Firefox (and Geckodriver) only support the new W3C WebDriver protocol (which is yet to be implemented by php-webdriver - see [issue #469](https://github.com/facebook/php-webdriver/issues/469)),
-the protocols must be translated by Selenium Server - this feature is *partially* available in Selenium Server versions 3.5.0-3.8.1 and you can enable it like this:
-
-    java -jar selenium-server-standalone-3.8.1.jar -enablePassThrough false
-
-Now you can start Firefox from your code:
-
+### 安装测试:(截图test.png出现即成功)
 ```php
-$driver = RemoteWebDriver::create($host, DesiredCapabilities::firefox());
+namespace Facebook\WebDriver;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+require_once('vendor/autoload.php');
+$caps = DesiredCapabilities::chrome();
+$options = new ChromeOptions();
+$addArguments=[
+'enableImages'=> false, //禁止图像,可加速
+'windowSize'=>[1920, 1000],//窗口尺寸
+'isMobile'=>true,//使用使用移动端UA
+'userDataDir'=>'/www/collector/data/'//如果往页面调试跨域js等信息必须.随便空目录路径
+//'proxy'=>'127.0.0.1:8000'//代理
+];
+$options->addArguments($addArguments);
+$caps->setCapability(ChromeOptions::CAPABILITY, $options);
+$driver = RemoteWebDriver::create('http://127.0.0.1:4444/wd/hub', $caps, 5000);
+$driver->get('https://baidu.com');
+echo "The title is '" . $driver->getTitle() . "'\n";
+echo "The current URI is '" . $driver->getCurrentURL() . "'\n";
+$driver->takeScreenshot('./test.jpg');
+$driver->quit();
 ```
-
-### Customize Desired Capabilities
-
+### API使用集合:
 ```php
-$desired_capabilities = DesiredCapabilities::firefox();
-$desired_capabilities->setCapability('acceptSslCerts', false);
-$driver = RemoteWebDriver::create($host, $desired_capabilities);
+<?php
+namespace Facebook\WebDriver;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+require_once('vendor/autoload.php');
+
+//启动参数
+$options = new ChromeOptions();
+$addArguments=[
+'enableImages'=> false, //禁止图像,可加速
+'windowSize'=>[1920, 6000],//窗口尺寸
+'isMobile'=>true,//使用使用移动端UA
+'userDataDir'=>'/www/collector/data/'//如果往页面调试跨域js等信息必须.随便空目录路径
+//'proxy'=>'127.0.0.1:8000'//代理
+//'other'=>['']//其它一些参数组成的数组
+];
+$options->addArguments($addArguments);
+
+//启动时加载指定扩展
+$options->addExtensions(array(
+'/path/to/chrome/extension1.crx',
+'/path/to/chrome/extension2.crx',
+));
+
+//启动预设,例如下载目录
+$prefs = ['download.default_directory' => 'c:/temp'];
+$options->setExperimentalOption('prefs', $prefs);
+
+//启动浏览器
+$caps = DesiredCapabilities::chrome();
+
+//除了上方的代理方式还可以用这个
+$caps = [
+    WebDriverCapabilityType::BROWSER_NAME => 'chrome',
+    WebDriverCapabilityType::PROXY => [
+        'proxyType' => 'manual',
+        'httpProxy' => '127.0.0.1:2043',
+        'sslProxy' => '127.0.0.1:2043',
+    ]
+];
+
+$caps->setCapability(ChromeOptions::CAPABILITY, $options);
+$driver = RemoteWebDriver::create('http://127.0.0.1:4444/wd/hub', $caps, 5000);
+
+//退出驱动
+$driver->quit();
+
+//各种类型的筛选元素
+//按Css选择器
+WebDriverBy::cssSelector('h1.foo > small');
+
+//按Xpath
+WebDriverBy::xpath('(//hr)[1]/following-sibling::div[2]');
+
+//按ID
+WebDriverBy::id('heading');
+
+//按className
+WebDriverBy::className('warning');
+
+//按input的name
+WebDriverBy::name('email');
+
+//按tagName比如h1,div,span
+WebDriverBy::tagName('h1');
+
+//按链接文本
+WebDriverBy::linkText('Sign in here');
+
+//按部分的链接文本
+WebDriverBy::partialLinkText('Sign in');
+
+//获取指定元素文本
+$result = $driver->findElement(WebDriverBy::id('signin'))->getText();
+
+//获得元素数组
+$elements = $driver->findElements(WebDriverBy::cssSelector('ul.foo > li'));
+foreach ($elements as $element) {
+    var_dump($element->getText());
+}
+
+//等待元素的出现,类同的还有visibilityOfElementLocated，visibilityOf，stalenessOf和elementToBeClickable
+$element = $driver->wait()->until(
+    WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('div.bar'))
+);
+$elements = $driver->wait()->until(
+    WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('ul > li'))
+);
+
+//等待标题匹配
+$driver->wait()->until( WebDriverExpectedCondition::titleIs('My Page'));
+//按500ms的频率循环,最多等待10秒
+$driver->wait(10, 500)->until(WebDriverExpectedCondition::titleIs('My Page'));
+
+//等待标题
+titleIs()
+titleContains()
+titleMatches()
+
+//等待URL
+urlIs()
+urlContains()
+urlMatches()
+
+//等待元素文本或value
+presenceOfElementLocated()
+presenceOfAllElementsLocatedBy()
+elementTextIs()
+elementTextContains()
+elementTextMatches()
+textToBePresentInElementValue()
+
+//等待元素或其可见性
+visibilityOfElementLocated()
+visibilityOf()//注意该方法前提是dom中已存在该元素,等待的是可见性,而不是元素本身.
+invisibilityOfElementLocated()
+invisibilityOfElementWithText()
+
+//框架,alert,窗口
+frameToBeAvailableAndSwitchToIt()
+elementToBeClickable()
+alertIsPresent()
+numberOfWindowsToBe()
+
+//还有这些
+stalenessOf()
+refreshed()
+not()
+elementToBeSelected()
+elementSelectionStateToBe()
+
+//还可以自定义,下文等待 li.foo 的数量超过5个.
+$driver->wait()->until(
+    function () use ($driver) {
+        $elements = $driver->findElements(WebDriverBy::cssSelector('li.foo'));
+        return count($elements) > 5;
+    },
+    '未定位到5个以上的li.foo'
+);
+
+
+
+//鼠标MouseOver在指定元素上
+$element = $driver->findElement(WebDriverBy::id('some_id'));
+$driver->getMouse()->mouseMove( $element->getCoordinates());
+
+//单击元素（链接，复选框等）
+$driver->findElement(WebDriverBy::id('signin'))->click();
+
+//替换元素内容
+$driver->findElement(WebDriverBy::id("element id"))->sendKeys("新文本");
+
+//清空元素内容
+$driver->findElement(WebDriverBy::id("element id"))->clear();
+
+//如何检查元素是否可见
+$element = $driver->findElement(WebDriverBy::id('element id'));
+if ($element->isDisplayed()){
+    // do something...
+}
+
+//页面重载
+$driver->navigate()->refresh();
+
+//等待alert弹出
+$this->driver->wait()->until(WebDriverExpectedCondition::alertIsPresent(), 'I am expecting an alert!',);
+
+//确定alert
+$driver->switchTo()->alert()->accept(); 
+
+//取消alert
+$driver->switchTo()->alert()->dismiss();
+
+//取得alert正文
+$message =$driver->switchTo()->alert()->getText();
+
+//回应alert,如(你的名字是?,此时回应test)
+$driver->switchTo()->alert()->sendKeys('test'); 
+
+//最大化浏览器
+$driver->manage()->window()->maximize();
+
+//执行js,全局加上window.
+$sScriptResult = $driver->executeScript('return window.document.location.hostname',array());
+
+//异步,5秒后无结果则取消,全局加上window.
+$driver->timeouts()->async_script(array('ms'=>5000));
+
+//从js中断并返回php
+$sResult = $driver->executeAsyncScript('arguments[arguments.length-1]("done");', array());
+if($sResult =='done'){
+//do something;
+}
+
+//js定时轮询
+$sJavascript = <<<END_JAVASCRIPT
+var callback = arguments[arguments.length-1], //返回php驱动的callback
+    nIntervalId; //setInterval的名称
+//测试定时
+function checkDone() {
+  if( window.MY_STUFF_DONE ) {
+    window.clearInterval(nIntervalId);//清除clearInterval
+    callback("done"); //执行回调
+  }
+}
+nIntervalId = window.setInterval( checkDone,50); //定时轮询
+END_JAVASCRIPT;
+$sResult = $driver->executeAsyncScript($sJavascript,array());
+
+//取得当前窗口句柄(句柄为每个窗口的唯一ID)
+$handle = $driver->getWindowHandle();
+
+//取得所有窗口的句柄为数组
+$handles = $driver->getWindowHandles();
+
+//切换到指定句柄的窗口
+$driver->switchTo()->window($handle);
+
+//创建新标签页
+$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 't'));
+
+//创建新窗口
+$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 'n'));
+
+//按元素ID或内容查找iframe
+$iframe = $driver->findElement(WebDriverBy::id('my_frame'));
+$iframe = $driver->findElement(WebDriverBy::tagName('iframe'));
+
+//获取iframe的属性
+$frameId = $iframe->getAttribute('id');
+
+//切至指定ID的iframe,这样就可以操作iframe中的内容了,比如点击之类
+$driver->switchTo()->frame($frameId);
+
+//切回主框架
+$driver->switchTo()->defaultContent(); 
+
+//切至focus元素,没有切至body
+$active_element = $driver->switchTo()->activeElement();
+
+//获取指定元素的属性值
+$title = $driver->findElement(WebDriverBy::id('signin'))->getAttribute('title');
+
+//获取input的值
+$value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value');
+
+//整页截图
+$driver->takeScreenshot('./00001.jpg');
+
+//局部截图
+$screenshot_of_element = $driver->TakeScreenshotByElement($this->driver->findElement(WebDriverBy::xpath("//img[@class='test']"),'./00001.jpg');
+
+
+//等待ajax提交后的回调并筛选元素
+$submitButton = $driver->findElement(WebDriverBy::id('Submit'));
+$submitButton->click();
+waitForAjax($driver,'jquery'); 
+//waitForAjax($driver, 'prototype');
+//waitForAjax($driver, 'dojo');
+$anotherButton = $driver->findElement(WebDriverBy::id('secondButton'));
+function waitForAjax($driver, $framework='jquery')
+{
+    //不同框架
+    switch($framework){
+        case 'jquery':
+            $code = "return jQuery.active;"; break;
+        case 'prototype':
+            $code = "return Ajax.activeRequestCount;"; break;
+        case 'dojo':
+            $code = "return dojo.io.XMLHTTPTransport.inFlight.length;"; break;
+        default:
+            throw new Exception('Not supported framework');
+    }
+
+    do {
+        sleep(2);
+    } while ($driver->executeScript($code));
+}
+function waitForAjax($driver, $framework='jquery')
+{
+    //不同框架
+    switch($framework){
+        case 'jquery':
+            $code = "return jQuery.active;"; break;
+        case 'prototype':
+            $code = "return Ajax.activeRequestCount;"; break;
+        case 'dojo':
+            $code = "return dojo.io.XMLHTTPTransport.inFlight.length;"; break;
+        default:
+            throw new Exception('Not supported framework');
+    }
+
+    //按2000ms的频率循环,最多等待30秒
+    $driver->wait(30, 2000)->until(
+        function ($driver, $code) {
+            return !$driver->executeScript($code);
+        }
+    );
+}
+
+//示例:
+<select name="language">
+    <option value="cs">Czech</option>
+    <option value="de">German</option>
+    <option value="en_GB" selected>English (UK)</option>
+    <option value="fr">French</option>
+</select>
+
+//找到<select>
+$selectElement = $driver->findElement(WebDriverBy::name('language'));
+
+//构造select
+$select = new WebDriverSelect($selectElement);
+
+//获得select的value
+echo $select->getFirstSelectedOption()->getAttribute('value'); //"en_GB"
+echo $select->getFirstSelectedOption()->getText(); //"English（UK）"
+
+//获取所有<options>元素的数组
+$options = $select->getOptions();
+
+//获得所有已选中项组成的数组
+$selectedOptions = $select->getAllSelectedOptions();
+
+//各种方式选中
+$select->selectByValue('fr');//按value
+$select->selectByIndex(1); //按index
+$select->selectByVisibleText('Czech');//按要选中Option的text内容
+$select->selectByVisiblePartialText('UK'); //按要选中Option的text内容是否包含指定值'UK'
+
+//还可以取消选中,比如全不选
+$select->deselectAll();
+$select->deselectByValue('...');
+$select->deselectByIndex(0);
+$select->deselectByVisibleText('...');
+$select->deselectByVisiblePartialText('...');
+
+
+//示例:
+<input type="file" id="file_input"></input>
+//流程如下:
+
+//设置一个临时副本
+  $remote_image = __DIR__ . '/tmp/image-'.time().'.jpg';
+  copy('http://www.site.com/image/photo.jpg', $remote_image);
+  
+//获取上传框
+  $fileInput = $driver->findElement(WebDriverBy::id('file_input'));
+  
+//设置文件类型
+  $fileInput->setFileDetector(new LocalFileDetector());
+  
+//上传并提交
+$fileInput->sendKeys($remote_image)->submit();
+
+//删除临时副本
+unlink($remote_image);
 ```
-
-* See https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities for more details.
-
-**NOTE:** Above snippets are not intended to be a working example by simply copy-pasting. See [example.php](example.php) for working example.
-
-## Changelog
-For latest changes see [CHANGELOG.md](CHANGELOG.md) file.
-
-## More information
-
-Some how-tos are provided right here in [our GitHub wiki](https://github.com/facebook/php-webdriver/wiki).
-
-You may also want to check out the Selenium [docs](http://docs.seleniumhq.org/docs/) and [wiki](https://github.com/SeleniumHQ/selenium/wiki).
-
-## Testing framework integration
-
-To take advantage of automatized testing you may want to integrate php-webdriver to your testing framework.
-There are some projects already providing this:
-
-- [Steward](https://github.com/lmc-eu/steward) integrates php-webdriver directly to [PHPUnit](https://phpunit.de/), and provides parallelization
-- [Codeception](http://codeception.com) testing framework provides BDD-layer on top of php-webdriver in its [WebDriver module](http://codeception.com/docs/modules/WebDriver)
-- You can also check out this [blogpost](http://codeception.com/11-12-2013/working-with-phpunit-and-selenium-webdriver.html) + [demo project](https://github.com/DavertMik/php-webdriver-demo), describing simple [PHPUnit](https://phpunit.de/) integration
-
-## Support
-
-We have a great community willing to help you!
-
-- **Via our Facebook Group** - If you have questions or are an active contributor consider joining our [facebook group](https://www.facebook.com/groups/phpwebdriver/) and contribute to communal discussion and support
-- **Via StackOverflow** - You can also [ask a question](https://stackoverflow.com/questions/ask?tags=php+selenium-webdriver) or find many already answered question on StackOverflow
-- **Via GitHub** - Another option if you have a question (or bug report) is to [submit it here](https://github.com/facebook/php-webdriver/issues/new) as an new issue
-
-## Contributing
-
-We love to have your help to make php-webdriver better. See [CONTRIBUTING.md](CONTRIBUTING.md) for more information about contributing and developing php-webdriver.

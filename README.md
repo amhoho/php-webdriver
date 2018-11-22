@@ -1,10 +1,13 @@
 ### 版本:
 Latest commit 2dbfa70  on 19 Oct
+
 ### 改动文件:
 修改addArguments
+
 文件:/facebook/webdriver/lib/Chrome/ChromeOptions.php
 
 新增TakeScreenshotByElement
+
 文件:/facebook/webdriver/lib/Remote/RemoteWebDriver.php
 
 

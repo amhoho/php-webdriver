@@ -214,9 +214,9 @@ $ua['mobile']=[
 
         // disable loading of images (currently can't be done via devtools, only CLI)
         if (array_key_exists('isMobile', $arguments) && ($arguments['isMobile'] === true)) {
-          $args[] =  '--user-agent=' . array_rand($ua['mobile'],1);
+          $args[] =  '--user-agent=' . $ua['mobile'][array_rand($ua['mobile'],1)];
         }else{
-        $args[] =  '--user-agent=' . array_rand($ua['pc'],1);
+        $args[] =  '--user-agent=' . $ua['pc'][array_rand($ua['pc'],1)];
         }
 $ua=null;
 

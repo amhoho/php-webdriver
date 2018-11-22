@@ -1,7 +1,7 @@
-### 版本:
+## 版本:
 Latest commit 2dbfa70  on 19 Oct
 
-### 改动文件:
+## 改动文件:
 修改addArguments
 
 文件:/facebook/webdriver/lib/Chrome/ChromeOptions.php
@@ -11,7 +11,7 @@ Latest commit 2dbfa70  on 19 Oct
 文件:/facebook/webdriver/lib/Remote/RemoteWebDriver.php
 
 
-### 环境安装
+## 环境安装
 ```
 curl -sS https://getcomposer.org/installer | php
 composer config -g repo.packagist composer https://packagist.phpcomposer.com
@@ -53,14 +53,7 @@ nohup /usr/lib/jvm/jre-1.8.0-openjdk/bin/java -jar /www/collector/collector.jar
 ln -s /etc/alternatives/google-chrome /usr/bin/chrome
 ```
 
-### 改动说明:
-
-```
-修改了/www/wwwroot/39kefu.com/vendor/facebook/webdriver/lib/Chrome/ChromeOptions.php修改addArguments
-修改了//www/wwwroot/39kefu.com/vendor/facebook/webdriver/lib/Remote/RemoteWebDriver.php新增TakeScreenshotByElement
-```
-
-### 安装测试:(截图test.png出现即成功)
+## 安装测试:(截图test.png出现即成功)
 ```php
 namespace Facebook\WebDriver;
 use Facebook\WebDriver\Chrome\ChromeOptions;
@@ -85,8 +78,8 @@ echo "The current URI is '" . $driver->getCurrentURL() . "'\n";
 $driver->takeScreenshot('./test.jpg');
 $driver->quit();
 ```
-### API使用集合:
- 1. 启动浏览器与设置代理
+## API使用集合:
+### 1. 启动浏览器与设置代理
 ```php
 <?php
 namespace Facebook\WebDriver;
@@ -141,7 +134,7 @@ $driver->get('https://www.google.com');
 }
 ```
 
- 2. 窗口,会话,alert,iframe
+### 2. 窗口,会话,alert,iframe
  ```php
 //取得当前窗口句柄(句柄为每个窗口的唯一ID)
 $handle = $driver->getWindowHandle();
@@ -227,11 +220,9 @@ $driver->switchTo()->defaultContent();
 
 //切至focus元素,没有切至body
 $active_element = $driver->switchTo()->activeElement();
-
-
 ```
 
- 3.Html的Dom元素
+### 3.Dom元素
 ```php
 //筛选元素
 WebDriverBy::cssSelector('h1.foo > small');//按Css选择器
@@ -287,17 +278,17 @@ $elements = $driver->findElements(WebDriverBy::cssSelector('ul.foo > li'));
 foreach ($elements as $element) {
     var_dump($element->getText());
 }
-
-
 ```
 
- 4.内容的等待(隐性等待和显性等待)
+### 4.内容的等待(隐性等待和显性等待)
  ```php
-//隐性等待:30秒内你不能来,我就去接别人了.你来了我们立马开车.这种等待说一次就够了.
+//隐性等待:对任何人都永远坚持'30秒内你不能来,我就去接别人了.你来了我们立马开车'.
+//这种原则性的事情在启动浏览器时说一次就够了.
 $driver->manage()->timeouts()->implicitlyWait(30);
-//接下来不管等谁,我都最多只等30秒,所以我这里声明一次就行了.
-//虽然方便,但我不推荐这个,因为等的人要是没来又去接别人,最后就得丢三落四不齐全.
+//接下来不管等谁,我都最多只等30秒,比如get.
 $driver->get('https://www.baidu.com/');
+//虽然方便,但我不推荐这个,因为等的人要是没来又去接别人,最后就得丢三落四不齐全.
+
 
 //显示等待:30秒内你不能来,我就抛个异常罢工了,也不接别人了.来了还是立马走,下文都是这样.
 
@@ -307,9 +298,9 @@ $driver->wait()->until( WebDriverExpectedCondition::titleIs('My Page'));
 //按500ms的频率循环,最多等待10秒
 $driver->wait(10, 500)->until(WebDriverExpectedCondition::titleIs('My Page'));
  
- 类似WebDriverExpectedCondition::titleIs()的还有:
+类似WebDriverExpectedCondition::titleIs()的还有:
  
- //等待标题
+//等待标题
 titleIs()
 titleContains()
 titleMatches()
@@ -356,7 +347,7 @@ $driver->wait()->until(
 );
 ```
 
- 5. 鼠标的操作:
+### 5. 鼠标的操作:
 ```php
 //MouseOver在指定元素上
 $element = $driver->findElement(WebDriverBy::id('some_id'));
@@ -366,7 +357,7 @@ $driver->getMouse()->mouseMove( $element->getCoordinates());
 $driver->findElement(WebDriverBy::id('signin'))->click();
 ```
 
- 6. 截图
+### 6. 截图
 ```php
 //整页截图
 $driver->takeScreenshot('./00001.jpg');
@@ -376,13 +367,13 @@ $findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
 $screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
 ```
 
- 7. 日志
+### 7. 日志
 ```php
 $caps->setCapability( 'loggingPrefs', ['browser' => 'ALL']);
 $driver->manage()->getLog('driver');//driver,browser,server
 ```
 
- 8. Cookie
+### 8. Cookie
 ```php
 //获取
 $driver->manage()->getCookieNamed('CookieName');
@@ -394,7 +385,7 @@ $driver->manage()->deleteCookieNamed('CookieName');
 $driver->manage()->deleteAllCookies();
 ```
 
-9.Js的操作
+### 9.Js的操作
 
 ```php
 //执行js,全局加上window.
@@ -462,7 +453,7 @@ function waitForAjax($driver, $framework='jquery')
 }
 ```
 
-10.select选项卡等操作
+### 10. select操作
 
 示例Html:
 
@@ -475,7 +466,6 @@ function waitForAjax($driver, $framework='jquery')
 </select>
 ```
 
-select操作
 ```php
 //找到<select>
 $selectElement = $driver->findElement(WebDriverBy::name('language'));
@@ -515,14 +505,13 @@ $formElement->submit();
 
 ```
 
- 11. 表单文本上传
+### 11. 表单文本上传
 示例Html:
 ```html
 //示例:
 <input type="file" id="file_input"></input>
 ```
 
-//流程如下:
 ```php
 //设置一个临时副本
   $remote_image = __DIR__ . '/tmp/image-'.time().'.jpg';
@@ -540,22 +529,3 @@ $fileInput->sendKeys($remote_image)->submit();
 //删除临时副本
 unlink($remote_image);
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

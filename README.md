@@ -216,7 +216,16 @@ foreach ($elements as $element) {
     var_dump($element->getText());
 }
 
-//等待元素的出现,类同的还有visibilityOfElementLocated，visibilityOf，stalenessOf和elementToBeClickable
+//等待分为显性和隐性三种.
+//隐性等待:30秒内你不能来,我就去接别人了.你来了我们立马开车.这种等待说一次就够了.
+$driver->manage()->timeouts()->implicitlyWait(30);
+//接下来不管等谁,我都最多只等30秒,所以我这里声明一次就行了.
+//虽然方便,但我不推荐这个,因为等的人要是没来又去接别人,最后就得丢三落四不齐全.
+$driver->get('https://www.baidu.com/');
+
+//显示等待:30秒内你不能来,我就抛个异常罢工了,也不接别人了.来了还是立马走,下文都是这样.
+
+//等待元素的出现
 $element = $driver->wait()->until(
     WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('div.bar'))
 );
@@ -320,6 +329,15 @@ $driver->manage()->window()->maximize();
 //执行js,全局加上window.
 $sScriptResult = $driver->executeScript('return window.document.location.hostname',array());
 
+
+//常用的js
+//滚动到底部
+$driver->executeScript("window.scrollTo(0,document.body.scrollHeight)");
+//滚动到顶部
+$driver->executeScript("window.scrollTo(0,0)");
+
+
+
 //执行异步js
 $driver->executeAsyncScript('return window.document.location.hostname',array());
 
@@ -357,6 +375,11 @@ $handles = $driver->getWindowHandles();
 //切换到指定句柄的窗口
 $driver->switchTo()->window($handle);
 
+//比较有用的一点:每一次点击后应该切换到最新的一个窗口,比如_blank的时候就获得新窗口的句柄了.
+$submitButton->click();
+$driver->switchTo()->window(end($driver->getWindowHandles()));
+
+
 //创建新标签页
 $driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 't'));
 
@@ -388,7 +411,7 @@ $value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value
 //整页截图
 $driver->takeScreenshot('./00001.jpg');
 
-//局部截图
+//局部截图:实际是从整页截图中按元素的x,y,width,height截取,通常用于如验证码之类的截图.
 $findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
 $screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
 

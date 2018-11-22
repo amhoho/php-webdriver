@@ -73,6 +73,7 @@ $driver->takeScreenshot('./test.jpg');
 $driver->quit();
 ```
 ### API使用集合:
+ 1. 启动浏览器与设置代理
 ```php
 <?php
 namespace Facebook\WebDriver;
@@ -118,37 +119,60 @@ $caps = [
 
 $caps->setCapability(ChromeOptions::CAPABILITY, $options);
 $driver = RemoteWebDriver::create('http://127.0.0.1:4444/wd/hub', $caps, 5000);
+//超时处理
+$driver->manage()->timeouts()->pageLoadTimeout(10);
+try {
+$driver->get('https://www.google.com');
+} catch (TimeOutException $e) {
+//something
+}
+```
+
+ 2. 窗口,会话,alert,iframe
+ ```php
+//取得当前窗口句柄(句柄为每个窗口的唯一ID)
+$handle = $driver->getWindowHandle();
+
+//取得所有窗口的句柄为数组
+$handles = $driver->getWindowHandles();
+
+//切换到指定句柄的窗口
+$driver->switchTo()->window($handle);
+
+//比较有用的一点:每一次点击后应该切换到最新的一个窗口,比如_blank的时候就获得新窗口的句柄了.
+$submitButton->click();
+$driver->switchTo()->window(end($driver->getWindowHandles()));
+
+//创建新标签页
+$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 't'));
+
+//创建新窗口
+$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 'n'));
+
+//最大化浏览器
+$driver->manage()->window()->maximize();
 
 //获得当前url
 $driver->getCurrentURL();
 
-
-//超时处理
-$driver->manage()->timeouts()->pageLoadTimeout(1);
-try {
-$driver->get('slow_loading.html');
-} catch (TimeOutException $e) {
-//something
-}
-
-
-
+//获得源码
+$driver->getPageSource();
 
 //命令参数
 $driver->getCommandExecutor()
 
-//前进与后退
+//前进,后退,刷新
 $linkElement = $this->driver->findElement(WebDriverBy::id('a-form'));
-$linkElement->click();
-$driver->wait()->until(WebDriverExpectedCondition::urlContains('form.html'));
-$driver->navigate()->back();
-$driver->wait()->until(WebDriverExpectedCondition::urlContains('index.html'));
-$driver->navigate()->forward();
-$driver->wait()->until(WebDriverExpectedCondition::urlContains('form.html'));
+$linkElement->click();//点击链接a-form等待浏览器打开/form
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('/form'));
 
-//刷新
-$driver->navigate()->refresh();
+$driver->navigate()->back();//从/form后退回/index
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('/index'));
 
+$driver->navigate()->forward();//从/index前进至/form
+$driver->wait()->until(WebDriverExpectedCondition::urlContains('/form'));
+
+$driver->navigate()->refresh();//刷新一下
 
 //获得会话ID
 $driver->getSessionID();
@@ -156,37 +180,73 @@ $driver->getSessionID();
 //所有的会话
 $driver->getAllSessions();
 
-//获得源码
-$driver->getPageSource();
-
 //退出驱动
 $driver->close();
 $driver->quit();
 
-//各种类型的筛选元素
-//按Css选择器
-WebDriverBy::cssSelector('h1.foo > small');
+//等待alert弹出
+$this->driver->wait()->until(WebDriverExpectedCondition::alertIsPresent(), 'I am expecting an alert!',);
 
-//按Xpath
-WebDriverBy::xpath('(//hr)[1]/following-sibling::div[2]');
+//确定alert
+$driver->switchTo()->alert()->accept(); 
 
-//按ID
-WebDriverBy::id('heading');
+//取消alert
+$driver->switchTo()->alert()->dismiss();
 
-//按className
-WebDriverBy::className('warning');
+//取得alert正文
+$message =$driver->switchTo()->alert()->getText();
 
-//按input的name
-WebDriverBy::name('email');
+//回应alert,如(你的名字是?,此时回应test)
+$driver->switchTo()->alert()->sendKeys('test'); 
 
-//按tagName比如h1,div,span
-WebDriverBy::tagName('h1');
+//按元素ID或内容查找iframe
+$iframe = $driver->findElement(WebDriverBy::id('my_frame'));
+$iframe = $driver->findElement(WebDriverBy::tagName('iframe'));
 
-//按链接所在文本
-WebDriverBy::linkText('Sign in here');
+//获取iframe的属性
+$frameId = $iframe->getAttribute('id');
 
-//按部分匹配链接所在文本
-WebDriverBy::partialLinkText('Sign in');
+//切至指定ID的iframe,这样就可以操作iframe中的内容了,比如点击之类
+$driver->switchTo()->frame($frameId);
+
+//切回主框架
+$driver->switchTo()->defaultContent(); 
+
+//切至focus元素,没有切至body
+$active_element = $driver->switchTo()->activeElement();
+
+
+```
+
+ 3.Html的Dom元素
+```php
+//筛选元素
+WebDriverBy::cssSelector('h1.foo > small');//按Css选择器
+WebDriverBy::xpath('(//hr)[1]/following-sibling::div[2]');//按Xpath
+WebDriverBy::id('heading');//按ID
+WebDriverBy::className('warning');//按className
+WebDriverBy::name('email');//按input的name
+WebDriverBy::tagName('h1');//按tagName比如h1,div,span
+WebDriverBy::linkText('测试链接');//按链接所在文本,如<a href>测试链接</a>
+WebDriverBy::partialLinkText('测试');//按部分匹配链接所在文本,如<a href>测试链接</a>
+
+//替换元素内容
+$driver->findElement(WebDriverBy::id("element id"))->sendKeys("新文本");
+
+//清空元素内容
+$driver->findElement(WebDriverBy::id("element id"))->clear();
+
+//如何检查元素是否可见
+$element = $driver->findElement(WebDriverBy::id('element id'));
+if ($element->isDisplayed()){
+    // do something...
+}
+
+//获取指定元素的属性值
+$title = $driver->findElement(WebDriverBy::id('signin'))->getAttribute('title');
+
+//获取input的值
+$value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value');
 
 //获取指定元素文本
 $result = $driver->findElement(WebDriverBy::id('signin'))->getText();
@@ -204,7 +264,6 @@ $textarea->clear();
 //是否可输入
 $input->isEnabled();
 
-
 //获得坐标
 $element->getLocation();
 $elementLocation->getX();
@@ -216,7 +275,11 @@ foreach ($elements as $element) {
     var_dump($element->getText());
 }
 
-//等待分为显性和隐性三种.
+
+```
+
+ 4.内容的等待(隐性等待和显性等待)
+ ```php
 //隐性等待:30秒内你不能来,我就去接别人了.你来了我们立马开车.这种等待说一次就够了.
 $driver->manage()->timeouts()->implicitlyWait(30);
 //接下来不管等谁,我都最多只等30秒,所以我这里声明一次就行了.
@@ -225,20 +288,15 @@ $driver->get('https://www.baidu.com/');
 
 //显示等待:30秒内你不能来,我就抛个异常罢工了,也不接别人了.来了还是立马走,下文都是这样.
 
-//等待元素的出现
-$element = $driver->wait()->until(
-    WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('div.bar'))
-);
-$elements = $driver->wait()->until(
-    WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('ul > li'))
-);
-
+格式:
 //等待标题匹配
 $driver->wait()->until( WebDriverExpectedCondition::titleIs('My Page'));
 //按500ms的频率循环,最多等待10秒
 $driver->wait(10, 500)->until(WebDriverExpectedCondition::titleIs('My Page'));
-
-//等待标题
+ 
+ 类似WebDriverExpectedCondition::titleIs()的还有:
+ 
+ //等待标题
 titleIs()
 titleContains()
 titleMatches()
@@ -283,64 +341,59 @@ $driver->wait()->until(
     },
     '未定位到5个以上的li.foo'
 );
+```
 
-
-
-//鼠标MouseOver在指定元素上
+ 5. 鼠标的操作:
+```php
+//MouseOver在指定元素上
 $element = $driver->findElement(WebDriverBy::id('some_id'));
 $driver->getMouse()->mouseMove( $element->getCoordinates());
 
 //单击元素（链接，复选框等）
 $driver->findElement(WebDriverBy::id('signin'))->click();
+```
 
-//替换元素内容
-$driver->findElement(WebDriverBy::id("element id"))->sendKeys("新文本");
+ 6. 截图
+```php
+//整页截图
+$driver->takeScreenshot('./00001.jpg');
 
-//清空元素内容
-$driver->findElement(WebDriverBy::id("element id"))->clear();
+//局部截图:实际是从整页截图中按元素的x,y,width,height截取,通常用于如验证码之类的截图.
+$findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
+$screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
+```
 
-//如何检查元素是否可见
-$element = $driver->findElement(WebDriverBy::id('element id'));
-if ($element->isDisplayed()){
-    // do something...
-}
+ 7. 日志
+```php
+$caps->setCapability( 'loggingPrefs', ['browser' => 'ALL']);
+$driver->manage()->getLog('driver');//driver,browser,server
+```
 
-//页面重载
-$driver->navigate()->refresh();
+ 8. Cookie
+```php
+//获取
+$driver->manage()->getCookieNamed('CookieName');
+$driver->manage()->getCookies();
+//设置
+$driver->manage()->addCookie(['CookieName'=>'CookieValue']);
+//删除或清空
+$driver->manage()->deleteCookieNamed('CookieName');
+$driver->manage()->deleteAllCookies();
+```
 
-//等待alert弹出
-$this->driver->wait()->until(WebDriverExpectedCondition::alertIsPresent(), 'I am expecting an alert!',);
+9.Js的操作
 
-//确定alert
-$driver->switchTo()->alert()->accept(); 
-
-//取消alert
-$driver->switchTo()->alert()->dismiss();
-
-//取得alert正文
-$message =$driver->switchTo()->alert()->getText();
-
-//回应alert,如(你的名字是?,此时回应test)
-$driver->switchTo()->alert()->sendKeys('test'); 
-
-//最大化浏览器
-$driver->manage()->window()->maximize();
-
+```php
 //执行js,全局加上window.
 $sScriptResult = $driver->executeScript('return window.document.location.hostname',array());
 
-
-//常用的js
 //滚动到底部
 $driver->executeScript("window.scrollTo(0,document.body.scrollHeight)");
 //滚动到顶部
 $driver->executeScript("window.scrollTo(0,0)");
 
-
-
 //执行异步js
 $driver->executeAsyncScript('return window.document.location.hostname',array());
-
 
 //异步,5秒后无结果则取消,全局加上window.
 $driver->timeouts()->async_script(array('ms'=>5000));
@@ -366,71 +419,6 @@ nIntervalId = window.setInterval( checkDone,50); //定时轮询
 END_JAVASCRIPT;
 $sResult = $driver->executeAsyncScript($sJavascript,array());
 
-//取得当前窗口句柄(句柄为每个窗口的唯一ID)
-$handle = $driver->getWindowHandle();
-
-//取得所有窗口的句柄为数组
-$handles = $driver->getWindowHandles();
-
-//切换到指定句柄的窗口
-$driver->switchTo()->window($handle);
-
-//比较有用的一点:每一次点击后应该切换到最新的一个窗口,比如_blank的时候就获得新窗口的句柄了.
-$submitButton->click();
-$driver->switchTo()->window(end($driver->getWindowHandles()));
-
-
-//创建新标签页
-$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 't'));
-
-//创建新窗口
-$driver->getKeyboard()->sendKeys(array(WebDriverKeys::CONTROL, 'n'));
-
-//按元素ID或内容查找iframe
-$iframe = $driver->findElement(WebDriverBy::id('my_frame'));
-$iframe = $driver->findElement(WebDriverBy::tagName('iframe'));
-
-//获取iframe的属性
-$frameId = $iframe->getAttribute('id');
-
-//切至指定ID的iframe,这样就可以操作iframe中的内容了,比如点击之类
-$driver->switchTo()->frame($frameId);
-
-//切回主框架
-$driver->switchTo()->defaultContent(); 
-
-//切至focus元素,没有切至body
-$active_element = $driver->switchTo()->activeElement();
-
-//获取指定元素的属性值
-$title = $driver->findElement(WebDriverBy::id('signin'))->getAttribute('title');
-
-//获取input的值
-$value  = $driver->findElement(WebDriverBy::id('username'))->getAttribute('value');
-
-//整页截图
-$driver->takeScreenshot('./00001.jpg');
-
-//局部截图:实际是从整页截图中按元素的x,y,width,height截取,通常用于如验证码之类的截图.
-$findElement=$driver->findElement(WebDriverBy::xpath("//img[@class='test']"));
-$screenshot_of_element = $driver->TakeScreenshotByElement($findElement,'./1.jpg');
-
-//日志
-$caps->setCapability( 'loggingPrefs', ['browser' => 'ALL']);
-$driver->manage()->getLog('driver');//driver,browser,server
-
-//Cookie操作
-//获取
-$driver->manage()->getCookieNamed('CookieName');
-$driver->manage()->getCookies();
-//设置
-$driver->manage()->addCookie(['CookieName'=>'CookieValue']);
-//删除或清空
-$driver->manage()->deleteCookieNamed('CookieName');
-$driver->manage()->deleteAllCookies();
-
-
-
 //等待ajax提交后的回调并筛选元素
 $submitButton = $driver->findElement(WebDriverBy::id('Submit'));
 $submitButton->click();
@@ -452,24 +440,6 @@ function waitForAjax($driver, $framework='jquery')
             throw new Exception('Not supported framework');
     }
 
-    do {
-        sleep(2);
-    } while ($driver->executeScript($code));
-}
-function waitForAjax($driver, $framework='jquery')
-{
-    //不同框架
-    switch($framework){
-        case 'jquery':
-            $code = "return jQuery.active;"; break;
-        case 'prototype':
-            $code = "return Ajax.activeRequestCount;"; break;
-        case 'dojo':
-            $code = "return dojo.io.XMLHTTPTransport.inFlight.length;"; break;
-        default:
-            throw new Exception('Not supported framework');
-    }
-
     //按2000ms的频率循环,最多等待30秒
     $driver->wait(30, 2000)->until(
         function ($driver, $code) {
@@ -477,15 +447,23 @@ function waitForAjax($driver, $framework='jquery')
         }
     );
 }
+```
 
-//示例:
+10.select选项卡等操作
+
+示例Html:
+
+```html
 <select name="language">
     <option value="cs">Czech</option>
     <option value="de">German</option>
     <option value="en_GB" selected>English (UK)</option>
     <option value="fr">French</option>
 </select>
+```
 
+select操作
+```php
 //找到<select>
 $selectElement = $driver->findElement(WebDriverBy::name('language'));
 
@@ -522,16 +500,17 @@ $select->deselectByVisiblePartialText('...');
 $formElement = $driver->findElement(WebDriverBy::cssSelector('form'));
 $formElement->submit();
 
+```
 
-
-
-
-
-
+ 11. 表单文本上传
+示例Html:
+```html
 //示例:
 <input type="file" id="file_input"></input>
-//流程如下:
+```
 
+//流程如下:
+```php
 //设置一个临时副本
   $remote_image = __DIR__ . '/tmp/image-'.time().'.jpg';
   copy('http://www.site.com/image/photo.jpg', $remote_image);
@@ -548,3 +527,22 @@ $fileInput->sendKeys($remote_image)->submit();
 //删除临时副本
 unlink($remote_image);
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -111,6 +111,10 @@ $options->setExperimentalOption('prefs', $prefs);
 
 //启动浏览器
 $caps = DesiredCapabilities::chrome();
+$caps ->setPlatform('Linux');
+//这是一个刚补的坑,此处必须setPlatform
+//否则将因`--disable-gpu`导致出现"Curl error thrown for http POST to /session with params"
+//通常这个错误是因为url为空,jar未启动,或chrome未启动.
 
 //除了上方的代理方式还可以用这个
 $caps = [

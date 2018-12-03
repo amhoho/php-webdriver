@@ -91,12 +91,11 @@ require_once('vendor/autoload.php');
 //启动参数
 $options = new ChromeOptions();
 $addArguments=[
-'enableImages'=> false, //禁止图像,可加速
 'windowSize'=>[1920, 6000],//窗口尺寸
-'isMobile'=>true,//使用使用移动端UA
+'userAgent'=>'your UA',
 'userDataDir'=>'/www/collector/data/'//如果往页面调试跨域js等信息必须.随便空目录路径
-//'proxy'=>'127.0.0.1:8000'//代理
-//'other'=>['']//其它一些参数组成的数组
+'proxy'=>'127.0.0.1:8000'//代理
+'other'=>[]//其它一些参数组成的数组
 ];
 $options->addArguments($addArguments);
 

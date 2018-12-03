@@ -116,7 +116,7 @@ $args = [
 '--blink-settings=imagesEnabled=false'
 ];
 //UserAgent
-if (array_key_exists('UserAgent', $arguments)) {$args[] =  '--user-agent=' . $arguments['UserAgent'];};
+if (array_key_exists('userAgent', $arguments)) {$args[] =  '--user-agent=' . $arguments['userAgent'];};
 // window's size
 if (array_key_exists('windowSize', $arguments) && $arguments['windowSize']) {
 if (!is_array($arguments['windowSize']) || count($arguments['windowSize']) !== 2 || !is_numeric($arguments['windowSize'][0]) || !is_numeric($arguments['windowSize'][1])) {throw new \InvalidArgumentException('Option "windowSize" must be an array of dimensions (eg: [1000, 1200])');}
